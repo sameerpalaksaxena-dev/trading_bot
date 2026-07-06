@@ -13,7 +13,12 @@ from binance.exceptions import BinanceAPIException, BinanceOrderException, Binan
 
 logger = logging.getLogger("trading_bot")
 
-FUTURES_TESTNET_BASE_URL = "https://testnet.binancefuture.com"
+# NOTE: Binance retired the old testnet.binancefuture.com web UI and API in
+# August 2025 in favor of "Demo Trading". The REST API base URL for USDT-M
+# Futures Demo Trading is now https://demo-fapi.binance.com (previously
+# https://testnet.binancefuture.com/fapi). API keys are generated from the
+# Demo Trading > API Management page instead of the old standalone testnet site.
+FUTURES_TESTNET_BASE_URL = "https://demo-fapi.binance.com"
 
 
 class BinanceClientError(Exception):
@@ -37,10 +42,10 @@ class FuturesTestnetClient:
                 "BINANCE_API_SECRET as environment variables."
             )
 
-        # python-binance's `testnet=True` flag points spot endpoints at
-        # testnet, but for Futures we must explicitly override FUTURES_URL
-        # to hit the Futures Testnet base URL rather than production.
-        self._client = Client(api_key, api_secret, testnet=True)
+        # python-binance's `testnet=True` flag points spot endpoints at the
+        # old spot testnet, but for Futures we must explicitly override
+        # FUTURES_URL to hit the current Demo Trading base URL.
+        self._client = Client(api_key, api_secret)
         self._client.FUTURES_URL = FUTURES_TESTNET_BASE_URL + "/fapi"
 
         logger.info("Initialized Binance Futures Testnet client (base_url=%s)", FUTURES_TESTNET_BASE_URL)
